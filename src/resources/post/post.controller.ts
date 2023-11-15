@@ -3,13 +3,11 @@ import Controller from '@/utils/interfaces/controller.interface';
 import HttpException from '@/utils/exceptions/http.exception';
 import validationMiddleware from '@/middleware/validation.middleware';
 import validate from '@/resources/post/post.validation';
-import PostService from '@/resources/post/post.service';
-
+import Post from '@/resources/post/post.model';
 
 class PostController implements Controller {
     public path = '/posts';
     public router = Router();
-    private PostService = new PostService();
 
     constructor() {
         this.initialiseRoutes();
@@ -29,10 +27,14 @@ class PostController implements Controller {
         next: NextFunction
     ): Promise<Response | void> => {
         try {
-            const { title, body } = req.body;
-
-            const post = await this.PostService.create(title, body);
-
+            const { title, body, excerpt, user } = req.body;
+            const post = new Post();
+            post.title = title;
+            post.body = body;
+            post.excerpt = excerpt;
+            post.user = user;
+            await post.save();
+            
             res.status(201).json({ post });
         } catch (error) {
             next(new HttpException(400, 'Cannot create post'));

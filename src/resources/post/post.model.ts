@@ -1,19 +1,34 @@
-import { Schema, model } from 'mongoose';
-import Post from '@/resources/post/post.interface';
+import { BaseEntity, Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import User from "@/resources/user/user.model";
 
+@Entity()
+class Post extends BaseEntity {
+    @PrimaryGeneratedColumn()
+    id: number
 
-const PostSchema = new Schema(
-    {
-        title: {
-            type: String,
-            required: true,
-        },
-        body: {
-            type: String,
-            required: true,
-        },
-    },
-    { timestamps: true }
-);
+    @Column()
+    title: string
 
-export default model<Post>('Post', PostSchema);
+    @Column()
+    excerpt: string
+
+    @Column()
+    body: string
+
+    @CreateDateColumn({
+        name: 'created_at',
+        type: 'timestamp',
+    })
+    createdAt: string
+    
+    @UpdateDateColumn({
+        name: 'updated_at',
+        type: 'timestamp',
+    })
+    updatedAt: string
+    
+    @ManyToOne(() => User, (user) => user.posts)
+    user: User
+}
+
+export default Post;

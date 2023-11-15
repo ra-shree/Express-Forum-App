@@ -1,12 +1,13 @@
 import express, { Application } from 'express';
-import mongoose from 'mongoose';
 import compression from 'compression';
 import cors from 'cors';
 import morgan from 'morgan';
+import helmet from 'helmet';
+import { DataSource } from 'typeorm';
 import Controller from '@/utils/interfaces/controller.interface';
 import ErrorMiddleware from '@/middleware/error.middleware';
-import helmet from 'helmet';
-
+import User from '@/resources/user/user.model';
+import Post from '@/resources/post/post.model';
 
 class App {
     public express: Application;
@@ -42,11 +43,21 @@ class App {
     }
 
     private initialiseDatabaseConnection(): void {
-        const { MONGO_USER, MONGO_PASSWORD, MONGO_PATH } = process.env;
+        const AppDataSource = new DataSource({
+            type: "postgres",
+            host: "localhost",
+            port: Number(process.env.POSTGRES_PORT),
+            username: process.env.POSTGRES_USER,
+            password: process.env.POSTGRES_PASSWORD,
+            database: process.env.POSTGRES_DATABASE,
+            synchronize: true,
+            logging: "all",
+            entities: [User, Post],
+            subscribers: [],
+            migrations: [],
+        })
 
-        mongoose.connect(
-            `mongodb+srv://aaryashree:aaryashree123@cluster0.q7xue3a.mongodb.net/?retryWrites=true&w=majority`
-        );
+        AppDataSource.initialize().catch((error: any) => console.log(error));
     }
 
     public listen(): void {
