@@ -22,19 +22,24 @@ class User extends BaseEntity {
     password: string
 
     @CreateDateColumn({
-        name: 'created_at',
-        type: 'timestamp',
+        name: 'created_at'
     })
-    createdAt: string
+    createdAt: Date
     
     @UpdateDateColumn({
-        name: 'updated_at',
-        type: 'timestamp',
+        name: 'updated_at'
     })
-    updatedAt: string
+    updatedAt: Date
 
     @OneToMany(() => Post, (post) => post.user)
     posts: Post[] 
+
+
+    static findByEmail(email: string) {
+        return this.createQueryBuilder('users')
+            .where('users.email = :email', { email })
+            .getOne();
+    }
 }
 
 export default User;

@@ -1,4 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
+import bcrypt from 'bcrypt';
 import validationMiddleware from "@/middleware/validation.middleware";
 import HttpException from "@/utils/exceptions/http.exception";
 import Controller from "@/utils/interfaces/controller.interface";
@@ -16,7 +17,7 @@ class UserController implements Controller {
     private initialiseRoutes(): void {
         this.router.post(
             `${this.path}`,
-            validationMiddleware(validate.create),
+            validationMiddleware(validate.register),
             this.create
         );
     }
@@ -32,7 +33,9 @@ class UserController implements Controller {
             const user = new User();
             user.name = name;
             user.email = email;
-            user.password = password;
+            
+            const hash = await bcrypt.hash(password, 10);
+            user.password = hash;
             await user.save();
             
             res.status(201).json({ user });
