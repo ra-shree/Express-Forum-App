@@ -1,13 +1,14 @@
-import User from "@/resources/user/user.model";
+import UserInterface from "@/resources/user/user.interface";
 
-interface Post {
+interface PostInterface {
     id: number;
     title: string;
     excerpt: string;
     body: string;
-    createdAt?: string;
-    updatedAt?: string;
-    user?: User
+    createdAt?: Date;
+    updatedAt?: Date;
+    userId: number;
+    user?: UserInterface
 }
 
-export default Post;
+export default PostInterface;

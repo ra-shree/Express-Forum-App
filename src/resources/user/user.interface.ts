@@ -1,4 +1,4 @@
-import Post from "@/resources/post/post.model";
+import PostInterface from "@/resources/post/post.interface";
 
 interface UserInterface {
     id?: number;
@@ -7,7 +7,7 @@ interface UserInterface {
     password?: string;
     createdAt?: Date;
     updatedAt?: Date;
-    posts?: Post[];
+    posts?: PostInterface[];
 }
 
 export default UserInterface;
