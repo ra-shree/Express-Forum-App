@@ -1,46 +1,86 @@
 import { Router, Request, Response, NextFunction } from 'express';
-import bcrypt from 'bcrypt';
 import validationMiddleware from "@/middleware/validation.middleware";
 import HttpException from "@/utils/exceptions/http.exception";
 import Controller from "@/utils/interfaces/controller.interface";
 import validate from '@/resources/user/user.validation';
-import User from '@/resources/user/user.model';
+import UserService from '@/resources/user/user.service';
+import UserInterface from '@/resources/user/user.interface';
 
 class UserController implements Controller {
     public path = '/users';
     public router = Router();
+    private userService = new UserService();
 
     constructor() {
         this.initialiseRoutes();
     }
 
     private initialiseRoutes(): void {
-        this.router.post(
+        this.router.get(
             `${this.path}`,
+            this.index
+        );
+
+        this.router.post(
+            `/register`,
             validationMiddleware(validate.register),
-            this.create
+            this.register
+        );
+
+        this.router.post(
+            '/login',
+            validationMiddleware(validate.login),
+            this.login
         );
     }
 
-    private create = async (
+    private index = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) : Promise<Response | void> => {
+        try {
+            const result = await this.userService.index();
+
+            res.status(200).json(result);
+        } catch (error: any) {
+            next(new HttpException(400, error.message));
+        }
+    }
+
+    private login = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<Response | void> => {
+        try {
+            const {email, password} = req.body;
+            const token = await this.userService.login(email, password);
+
+            res.status(200).json({ token });
+        } catch (error: any) {
+            next(new HttpException(400, error.message));
+        }
+    }
+
+    private register = async (
         req: Request,
         res: Response,
         next: NextFunction
     ): Promise<Response | void> => {
         try {
             const { name, email, password } = req.body;
+            const user: UserInterface = {
+                name: name,
+                email: email,
+                password: password,
+            };
             
-            const user = new User();
-            user.name = name;
-            user.email = email;
-            
-            const hash = await bcrypt.hash(password, 10);
-            user.password = hash;
-            await user.save();
-            
-            res.status(201).json({ user });
-        } catch (error) {
-            next(new HttpException(400, 'Cannot create user'));
+            const result = await this.userService.create(user);
+
+            res.status(201).json(result);
+        } catch (error: any) {
+            next(new HttpException(400, error.message));
         }
     };
 }
