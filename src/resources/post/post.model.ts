@@ -1,7 +1,7 @@
 import { BaseEntity, Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import User from "@/resources/user/user.model";
 
-@Entity()
+@Entity({ name: 'posts' })
 class Post extends BaseEntity {
     @PrimaryGeneratedColumn()
     id: number
@@ -12,20 +12,20 @@ class Post extends BaseEntity {
     @Column()
     excerpt: string
 
-    @Column()
+    @Column({
+        type: 'text'
+    })
     body: string
 
     @CreateDateColumn({
-        name: 'created_at',
-        type: 'timestamp',
+        name: 'created_at'
     })
-    createdAt: string
+    createdAt: Date
     
     @UpdateDateColumn({
-        name: 'updated_at',
-        type: 'timestamp',
+        name: 'updated_at'
     })
-    updatedAt: string
+    updatedAt: Date
     
     @ManyToOne(() => User, (user) => user.posts)
     user: User

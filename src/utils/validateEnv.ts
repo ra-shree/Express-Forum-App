@@ -9,7 +9,8 @@ function validateEnv(): void {
         POSTGRES_PASSWORD: str(),
         POSTGRES_DATABASE: str(),
         POSTGRES_PORT: port({ default: 5432 }),
-        PORT: port({ default: 3000 })
+        PORT: port({ default: 3000 }),
+        JWT_SECRET: str(),
     })
 }
 
