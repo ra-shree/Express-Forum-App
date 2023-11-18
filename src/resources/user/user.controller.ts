@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import Controller from "@/utils/interfaces/controller.interface";
 import HttpException from "@/utils/exceptions/http.exception";
 import validationMiddleware from "@/middleware/validation.middleware";
+import authenticationMiddleware from '@/middleware/authentication.middlware';
 import validate from '@/resources/user/user.validation';
 import UserInterface from '@/resources/user/user.interface';
 import UserService from '@/resources/user/user.service';
@@ -18,7 +19,8 @@ class UserController implements Controller {
     private initialiseRoutes(): void {
         this.router.get(
             `${this.path}`,
-            this.index
+            authenticationMiddleware,
+            this.getUser
         );
 
         this.router.post(
@@ -34,18 +36,16 @@ class UserController implements Controller {
         );
     }
 
-    private index = async (
+    private getUser = async (
         req: Request,
         res: Response,
         next: NextFunction
     ) : Promise<Response | void> => {
-        try {
-            const result = await this.userService.index();
-
-            res.status(200).json(result);
-        } catch (error: any) {
-            next(new HttpException(400, error.message));
+        if (!req.user) {
+            throw new HttpException(404, 'Not logged in');
         }
+
+        res.status(200).json({ user: req.user });
     }
 
     private login = async (
@@ -59,6 +59,7 @@ class UserController implements Controller {
 
             res.status(200).json({ token });
         } catch (error: any) {
+
             next(new HttpException(400, error.message));
         }
     }

@@ -61,7 +61,7 @@ class UserService implements Service<UserInterface> {
         };
     }
 
-    async update(key: number, item: UserInterface): Promise<UserModel> {
+    async update(key: number, item: UserInterface): Promise<UserInterface> {
         const user = await UserModel.findOne({
             select: {
                 id: false,
@@ -80,7 +80,13 @@ class UserService implements Service<UserInterface> {
         user.password = item.password ?? user.password;
         await user.save();
 
-        return user;
+        return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+        }
     }
 
     async delete(key: number): Promise<boolean> {
@@ -102,7 +108,7 @@ class UserService implements Service<UserInterface> {
         return true;
     }
 
-    async show(key: number): Promise<UserModel> {
+    async show(key: number): Promise<UserInterface> {
         const user = await UserModel.findOne({
             select: {
                 id: false,
@@ -116,7 +122,14 @@ class UserService implements Service<UserInterface> {
             throw new Error('User does not exist.');
         }
 
-        return user;
+        return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            password: user.password,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+        };
     }
 
     async login(email: string, password: string): Promise<string> {
